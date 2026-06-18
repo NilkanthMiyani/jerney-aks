@@ -1,6 +1,6 @@
 # ==============================================================
 # Bootstrap — creates the Azure Storage Account used as the
-# Terraform remote backend for infra/terraform-aks.
+# Terraform remote backend for infra/.
 #
 # Uses local state intentionally — this module is the
 # prerequisite that makes remote state possible.
@@ -68,7 +68,7 @@ resource "azurerm_storage_container" "tfstate" {
 }
 
 output "storage_account_name" {
-  description = "Set this as storage_account_name in infra/terraform-aks/versions.tf backend block"
+  description = "Set this as storage_account_name in infra/versions.tf backend block"
   value       = azurerm_storage_account.tfstate.name
 }
 

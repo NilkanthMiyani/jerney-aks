@@ -18,6 +18,8 @@ resource "helm_release" "argocd" {
     name  = "configs.cm.application\\.instanceLabelKey"
     value = "argocd.argoproj.io/instance"
   }
+
+  depends_on = [azurerm_kubernetes_cluster.main]
 }
 
 # ---- 2. External Secrets Operator ----
@@ -31,15 +33,30 @@ resource "helm_release" "external_secrets" {
   wait             = true
   timeout          = 300
 
-  set {
-    name  = "serviceAccount.annotations.azure\\.workload\\.identity/client-id"
-    value = azurerm_user_assigned_identity.eso.client_id
-  }
+  # Use a values block (not `set`) so the label value is rendered as a quoted
+  # string. The azure-wi-webhook mutates pods (not ServiceAccounts) whose labels
+  # match azure.workload.identity/use=true, so the label must land on the pod
+  # template; k8s label values must be strings.
+  values = [
+    yamlencode({
+      serviceAccount = {
+        annotations = {
+          "azure.workload.identity/client-id" = azurerm_user_assigned_identity.eso.client_id
+          # ESO's azurekv WorkloadIdentity path reads the tenant from this SA
+          # annotation (the store's tenantId field is not used here).
+          "azure.workload.identity/tenant-id" = data.azurerm_client_config.current.tenant_id
+        }
+      }
+      podLabels = {
+        "azure.workload.identity/use" = "true"
+      }
+    })
+  ]
 
-  set {
-    name  = "serviceAccount.labels.azure\\.workload\\.identity/use"
-    value = "true"
-  }
+  depends_on = [
+    azurerm_kubernetes_cluster.main,
+    azurerm_role_assignment.aks_kubelet_mi_operator # ensure identity is fully setup
+  ]
 }
 
 # ---- 3. ClusterSecretStore (Azure Key Vault) ----

@@ -152,21 +152,21 @@ variable "gitops_apps_path" {
 }
 
 variable "argocd_chart_version" {
-  description = "ArgoCD Helm chart version"
+  description = "ArgoCD Helm chart version (chart 9.5.x ships ArgoCD v3.4.x)"
   type        = string
-  default     = "6.7.11"
+  default     = "9.5.21"
 }
 
 variable "argocd_apps_chart_version" {
   description = "ArgoCD Apps Helm chart version"
   type        = string
-  default     = "2.0.2"
+  default     = "2.0.5"
 }
 
 variable "eso_chart_version" {
-  description = "External Secrets Operator Helm chart version"
+  description = "External Secrets Operator Helm chart version (2.x ships ESO v2.x)"
   type        = string
-  default     = "0.9.13"
+  default     = "2.6.0"
 }
 
 # ---- Key Vault ----
