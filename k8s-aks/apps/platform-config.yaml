@@ -10,7 +10,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/NilkanthMiyani/terraform-aks.git
+    repoURL: https://github.com/NilkanthMiyani/jerney-aks.git
     targetRevision: main
     path: k8s-aks/platform/governance
   destination:

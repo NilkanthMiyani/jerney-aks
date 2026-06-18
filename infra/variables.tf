@@ -27,6 +27,12 @@ variable "resource_group_name" {
   nullable    = false
 }
 
+variable "environment" {
+  description = "The environment name (e.g., dev, staging, prod)"
+  type        = string
+  nullable    = false
+}
+
 # ---- Cluster ----
 variable "cluster_name" {
   description = "AKS cluster name"

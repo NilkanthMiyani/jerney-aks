@@ -38,7 +38,6 @@ resource "azurerm_role_assignment" "aks_kubelet_mi_operator" {
 # ---- ESO Federated Credential ----
 resource "azurerm_federated_identity_credential" "eso" {
   name                      = "eso-federated-credential"
-  resource_group_name       = azurerm_resource_group.main.name
   audience                  = ["api://AzureADTokenExchange"]
   issuer                    = azurerm_kubernetes_cluster.main.oidc_issuer_url
   user_assigned_identity_id = azurerm_user_assigned_identity.eso.id

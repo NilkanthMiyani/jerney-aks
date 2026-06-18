@@ -14,7 +14,7 @@ spec:
       helm:
         valueFiles:
           - $values/k8s-aks/platform/loki-stack/values.yaml
-    - repoURL: https://github.com/NilkanthMiyani/terraform-aks.git
+    - repoURL: https://github.com/NilkanthMiyani/jerney-aks.git
       targetRevision: main
       ref: values
   destination:

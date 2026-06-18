@@ -28,7 +28,7 @@ terraform {
   backend "azurerm" {
     # Terraform Workspaces will automatically isolate state via environment prefixes in the container.
     resource_group_name  = "jerney-tfstate-rg"
-    storage_account_name = "jerneytfstate6d4ehw" # from bootstrap output
+    storage_account_name = "jerneytfstateva49xm" # from bootstrap output
     container_name       = "tfstate"
     key                  = "jerney-aks/terraform.tfstate"
   }
