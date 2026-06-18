@@ -1,0 +1,23 @@
+# ==============================================================
+# Example Terraform Variables File - Dev Environment
+# ==============================================================
+# Rename this file to `dev.tfvars` and fill in your actual values.
+# DO NOT commit the actual `dev.tfvars` file to version control.
+
+# ---- Azure Context ----
+subscription_id     = "00000000-0000-0000-0000-000000000000" # Your Azure Subscription ID
+resource_group_name = "rg-jerney-dev"
+environment         = "dev"
+
+# ---- Cluster ----
+cluster_name = "jerney-aks-dev"
+
+# ---- GitOps ----
+gitops_repo_url  = "https://github.com/your-org/jerney-aks.git"
+gitops_apps_path = "k8s-aks/apps"
+
+# ---- Secrets ----
+# Replace these with strong, secure passwords/keys for your environment
+postgres_password      = "replace-with-dev-postgres-password"
+grafana_admin_password = "replace-with-dev-grafana-password"
+alertmanager_smtp_key  = "replace-with-dev-smtp-key"

@@ -1,0 +1,70 @@
+# ==============================================================
+# Network Policies — AKS
+#
+# Identical intent as GKE. Only the ingress IP change from
+# GCP load balancer ranges (35.191.0.0/16, 130.211.0.0/22)
+# to Azure NGINX Ingress pod-based routing.
+#
+# On AKS with NGINX Ingress, traffic flows:
+#   Internet → Azure LB → NGINX Ingress pod (ingress-nginx ns) → backend pod
+# So we allow ingress from the ingress-nginx namespace selector,
+# not from specific IP ranges like GKE.
+# ==============================================================
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Chart.Name }}-db-allow-backend-only
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: postgresql
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ .Chart.Name }}-backend
+      ports:
+        - port: 5432
+          protocol: TCP
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Chart.Name }}-backend-allow-frontend-and-ingress
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Chart.Name }}-backend
+  policyTypes:
+    - Ingress
+  ingress:
+    # Allow from frontend pods (same namespace)
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ .Chart.Name }}-frontend
+      ports:
+        - port: 5000
+          protocol: TCP
+    # Allow from NGINX Ingress pods — traffic comes through the ingress-nginx namespace
+    # (differs from GKE where traffic came directly from GCP LB IP ranges)
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - port: 5000
+          protocol: TCP
+    # Allow Prometheus scraping from monitoring namespace
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - port: 5000
+          protocol: TCP

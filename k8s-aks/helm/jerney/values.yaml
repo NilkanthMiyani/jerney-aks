@@ -1,0 +1,64 @@
+# ==============================================================
+# Jerney Helm Values — AKS
+#
+# Differences from GKE values.yaml:
+#   postgresql.primary.persistence.storageClass: standard-rwo → managed-csi
+#     (GKE Persistent Disk → Azure Managed Disk)
+#   ingress: added (NGINX Ingress instead of GKE Gateway HTTPRoute)
+#   network policy CIDRs: updated for Azure (10.1.0.0/16 service range)
+# ==============================================================
+
+hpa:
+  frontend:
+    minReplicas: 1
+    maxReplicas: 10
+    targetCPU: 50
+  backend:
+    minReplicas: 1
+    maxReplicas: 10
+    targetCPU: 50
+
+image:
+  backend:
+    repository: docker.io/nmiyani/jerney-backend
+    tag: 8175f40
+  frontend:
+    repository: docker.io/nmiyani/jerney-frontend
+    tag: 8175f40
+
+postgresql:
+  enabled: true
+  image:
+    tag: "latest"
+  auth:
+    username: jerney_user
+    database: jerney_db
+    existingSecret: jerney-db-credentials
+    secretKeys:
+      adminPasswordKey: password
+      userPasswordKey: password
+  primary:
+    persistence:
+      size: 10Gi
+      # AKS managed-csi = Azure Managed Disk (ReadWriteOnce, Standard HDD by default)
+      # GKE equivalent: standard-rwo (GCP Persistent Disk)
+      storageClass: "managed-csi"
+
+service:
+  frontend:
+    type: ClusterIP
+    port: 80
+    targetPort: 8080
+    annotations: {}
+  backend:
+    type: ClusterIP
+    port: 5000
+    targetPort: 5000
+    annotations: {}
+  db:
+    type: ClusterIP
+    port: 5432
+    targetPort: 5432
+
+ingress:
+  host: jerney.nilkanthprojects.site

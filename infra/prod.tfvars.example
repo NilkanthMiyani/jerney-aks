@@ -1,0 +1,32 @@
+# ==============================================================
+# Example Terraform Variables File - Production Environment
+# ==============================================================
+# Rename this file to `prod.tfvars` and fill in your actual values.
+# DO NOT commit the actual `prod.tfvars` file to version control.
+
+# ---- Azure Context ----
+subscription_id     = "00000000-0000-0000-0000-000000000000" # Your Azure Subscription ID
+resource_group_name = "rg-jerney-prod"
+environment         = "prod"
+
+# ---- Cluster ----
+cluster_name       = "jerney-aks-prod"
+kubernetes_version = "1.35.0"
+node_vm_size       = "Standard_D4s_v7"
+min_node_count     = 3
+max_node_count     = 10
+disk_size_gb       = 100
+
+vnet_address_space    = "10.2.0.0/16"
+subnet_address_prefix = "10.2.0.0/24"
+
+# ---- GitOps ----
+gitops_repo_url        = "https://github.com/your-org/jerney-aks.git"
+gitops_target_revision = "prod"
+gitops_apps_path       = "k8s-aks/apps"
+
+# ---- Secrets ----
+# Replace these with strong, secure passwords/keys for your environment
+postgres_password      = "replace-with-prod-postgres-password"
+grafana_admin_password = "replace-with-prod-grafana-password"
+alertmanager_smtp_key  = "replace-with-prod-smtp-key"

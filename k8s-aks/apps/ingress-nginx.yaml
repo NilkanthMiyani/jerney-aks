@@ -1,0 +1,48 @@
+# NGINX Ingress Controller — replaces GKE Gateway API + GCP L7 Load Balancer.
+# Azure provisions a Standard Load Balancer (~$18/mo) for the NGINX service.
+# Wave 0: must be ready before Ingress resources in platform/ are applied.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ingress-nginx
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://kubernetes.github.io/ingress-nginx
+    chart: ingress-nginx
+    targetRevision: "4.11.x"
+    helm:
+      values: |
+        controller:
+          service:
+            type: LoadBalancer
+            annotations:
+              # Azure-specific: use a Standard SKU LB (required for multiple frontends)
+              service.beta.kubernetes.io/azure-load-balancer-sku: standard
+              # Azure HTTP health probes require HTTP 200 — nginx returns 404 for no-Host requests.
+              # /healthz is nginx's built-in liveness endpoint that always returns 200.
+              service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path: /healthz
+          admissionWebhooks:
+            enabled: false
+          replicaCount: 1
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ingress-nginx
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
